@@ -1,101 +1,80 @@
-<img src="common/src/main/resources/sodium-icon.png" width="128">
+<img src="legacy-fabric/src/main/resources/legacy-sodium-icon.png" width="128">
 
-# Sodium
+# Legacy Sodium
 
-Sodium is a powerful rendering engine and optimization mod for the Minecraft client which improves frame rates and reduces
-micro-stutter, while fixing many graphical issues in Minecraft.
+Legacy Sodium is a backport of [Sodium](https://github.com/CaffeineMC/sodium) for older Minecraft versions using [Legacy Fabric](https://legacyfabric.net). It aims to bring Sodium's rendering optimizations and chunk rendering pipeline to Minecraft 1.7.10, 1.8.9, and 1.13.2.
 
-**This mod is the result of thousands of hours of development, and is made possible thanks to players like you.** If you
-would like to show a token of your appreciation for my work, and help support the development of Sodium in the process,
-then consider [buying me a coffee](https://caffeinemc.net/donate).
-
-<a href="https://caffeinemc.net/donate"><img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" width="180"/></a>
+**Mod ID:** `legacy-sodium`  
+**Author:** MaxJubayerYT  
+**Repository:** https://github.com/MaxJubayerYT/Legacy-Sodium
 
 ---
 
-### 📥 Downloads
+## Supported Versions
 
-#### Stable builds
+| Minecraft | Loader        | Java | Status        |
+|-----------|---------------|------|---------------|
+| 1.7.10    | Legacy Fabric | 8    | Scaffolding   |
+| 1.8.9     | Legacy Fabric | 8    | Scaffolding   |
+| 1.13.2    | Legacy Fabric | 8    | Scaffolding   |
 
-The latest stable release of Sodium can be downloaded from our official [Modrinth](https://modrinth.com/mod/sodium) and
-[CurseForge](https://www.curseforge.com/minecraft/mc-mods/sodium) pages.
+Each target version uses its own Gradle profile under `versions/`. Long-term, version-specific work may live on dedicated branches.
 
-#### Nightly builds (for developers)
+## Requirements
 
-We also provide bleeding-edge builds ("nightlies") which are useful for testing the very latest changes before they're
-packaged into a release. These builds are primarily intended for other mod developers and users with expert skills, and do
-not come with any support or warranty.
+- **Legacy Fabric Loader** — not standard Fabric Loader for modern Minecraft
+- **Legacy Fabric API** — replaces `fabric-api` for these versions
+- **Java 8** for 1.7.10 and 1.8.9; Java 8 or 11 for 1.13.2
 
-For a complete listing of available nightly builds, please see [the wiki page](https://github.com/CaffeineMC/sodium/wiki/Nightly-Builds). We also have a Maven repository for including Sodium in your development workspace or build process, for which you can also find [documentation on our wiki](https://github.com/CaffeineMC/sodium/wiki/CaffeineMC-Maven-&-Config-API).
+Do **not** install this mod alongside OptiFabric.
 
-### 🖥️ Installation
+## Building
 
-Since the release of Sodium 0.6.0, both the _Fabric_ and _NeoForge_ mod loaders are supported. We generally recommend
-that new users prefer to use the _Fabric_ mod loader, since it is more lightweight and stable (for the time being.)
+Legacy Sodium uses Gradle with **Legacy Looming** (`legacy-looming` + `fabric-loom-remap`) for obfuscated legacy versions.
 
-For more information about downloading and installing the mod, please refer to our [Installation Guide](https://github.com/CaffeineMC/sodium/wiki/Installation).
+```sh
+# Build for the default profile (1.8.9)
+./gradlew build
 
-### 🙇 Getting Help
+# Build for a specific Minecraft version
+./gradlew build -PversionProfile=1.7.10
+./gradlew build -PversionProfile=1.13.2
 
-For technical support (including help with mod installation problems and game crashes), please use our
-[official Discord server](https://caffeinemc.net/discord).
+# Run the client
+./gradlew :legacy-fabric:runClient
 
-### 📬 Reporting Issues
+# Generate Minecraft sources
+./gradlew :legacy-fabric:genSources
+```
 
-If you do not need technical support and would like to report an issue (bug, crash, etc.) or otherwise request changes
-(for mod compatibility, new features, etc.), then we encourage you to open an issue on the
-[project issue tracker](https://github.com/CaffeineMC/sodium/issues).
+Build artifacts are written to `build/mods/`.
 
-Please note that while the issue tracker is open to feature requests, development is primarily focused on
-improving compatibility, performance, and finishing any unimplemented features necessary for parity with
-the vanilla renderer.
+### Project Layout
 
-### 💬 Join the Community
+```
+common/           Version-agnostic rendering logic (backport in progress)
+legacy-fabric/    Legacy Fabric loader entrypoints and mixins
+versions/         Per-Minecraft-version Gradle property profiles
+fabric/           Upstream modern Fabric module (excluded from default legacy build)
+frapi/            Upstream FRAPI module (not used on legacy versions)
+neoforge/         Upstream NeoForge module (excluded from default legacy build)
+```
 
-We have an [official Discord community](https://caffeinemc.net/discord) for all of our projects. By joining, you can:
-- Get installation help and technical support for all of our mods
-- Get the latest updates about development and community events
-- Talk with and collaborate with the rest of our team
-- ... and just hang out with the rest of our community.
+The default build only compiles `legacy-fabric`. To include upstream modern subprojects for reference:
 
-## ✅ Hardware Compatibility
+```sh
+./gradlew build -Plegacy.mode=false
+```
 
-We only provide official support for graphics cards which have up-to-date drivers that are compatible with OpenGL 4.5
-or newer. Most graphics cards released in the past 12 years will meet these requirements, including the following:
+## Development Notes
 
-- AMD Radeon HD 7000 Series (GCN 1) or newer
-- NVIDIA GeForce 400 Series (Fermi) or newer
-- Intel HD Graphics 500 Series (Skylake) or newer
+- 1.7.10 and 1.8.9 use the tessellator/vertex rendering pipeline — the modern Sodium chunk builder must be adapted for these versions.
+- 1.13.2 is closer to modern Minecraft but still predates many current Sodium APIs.
+- FRAPI (Fabric Rendering API) is **not** available on Legacy Fabric and is not a dependency.
+- Mappings: Legacy Yarn via `net.legacyfabric:yarn` for all supported versions.
 
-Nearly all graphics cards that are already compatible with Minecraft (which requires OpenGL 3.3) should also work
-with Sodium. But our team cannot ensure compatibility or provide support for older graphics cards, and they may
-not work with future versions of Sodium.
+## License
 
-#### OpenGL Compatibility Layers
+Except where otherwise stated (see [third-party license notices](thirdparty/NOTICE.txt)), the content of this repository is provided under the [Polyform Shield 1.0.0](LICENSE.md) license by [JellySquid](https://jellysquid.me).
 
-Devices which need to use OpenGL translation layers (such as GL4ES, ANGLE, etc.) are not supported and will very likely
-not work with Sodium. These translation layers do not implement required functionality, and they suffer from underlying
-driver bugs which cannot be worked around.
-
-## 🛠️ Building from sources
-
-Sodium uses the [Gradle build tool](https://gradle.org/) and can be built with the `gradle build` command. The build
-artifacts (production binaries and their source bundles) can be found in the `build/mods` directory.
-
-The [Gradle wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html#sec:using_wrapper) is provided for ease of use and will automatically download and install the
-appropriate version of Gradle for the project build. To use the Gradle wrapper, substitute `gradle` in build commands
-with `./gradlew.bat` (Windows) or `./gradlew` (macOS and Linux).
-
-### Build Requirements
-
-- OpenJDK 21
-    - We recommend using the [Eclipse Temurin](https://adoptium.net/) distribution as it's regularly tested by our developers and known
-      to be of high quality.
-- Gradle 8.10.x
-    - Typically, newer versions of Gradle will work without issues, but the build script is only tested against the
-      version used by the [wrapper script](/gradle/wrapper/gradle-wrapper.properties).
-
-## 📜 License
-
-Except where otherwise stated (see [third-party license notices](thirdparty/NOTICE.txt)), the content of this repository is provided
-under the [Polyform Shield 1.0.0](LICENSE.md) license by [JellySquid](https://jellysquid.me).
+Legacy Sodium is a community fork maintained by MaxJubayerYT and is not affiliated with CaffeineMC.

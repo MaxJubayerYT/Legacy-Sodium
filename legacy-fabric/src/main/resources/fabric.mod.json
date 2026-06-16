@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "legacy-sodium",
+  "version": "${version}",
+  "name": "Legacy Sodium",
+  "description": "A legacy backport of Sodium for older Minecraft versions. Brings Sodium's rendering optimizations to Legacy Fabric on 1.7.10, 1.8.9, and 1.13.2.",
+  "authors": [
+    "MaxJubayerYT"
+  ],
+  "contact": {
+    "homepage": "https://github.com/MaxJubayerYT/Legacy-Sodium",
+    "sources": "https://github.com/MaxJubayerYT/Legacy-Sodium",
+    "issues": "https://github.com/MaxJubayerYT/Legacy-Sodium/issues"
+  },
+  "license": "Polyform-Shield-1.0.0",
+  "icon": "legacy-sodium-icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.caffeinemc.mods.legacysodium.legacyfabric.LegacySodiumFabricMod"
+    ]
+  },
+  "mixins": [
+    "legacy-sodium.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "legacy-fabric-api": "*"
+  },
+  "breaks": {
+    "optifabric": "*"
+  }
+}

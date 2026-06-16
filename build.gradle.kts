@@ -14,14 +14,14 @@ gradle.projectsEvaluated {
         }
 
         val releasePlatform: String = project.providers.gradleProperty("build.release.platform").orNull
-                ?: return@publishMods println("build.release.platform must be defined (expected: both, fabric, neoforge)")
+                ?: return@publishMods println("build.release.platform must be defined (expected: legacy-fabric)")
 
         val releaseDestination: String = project.providers.gradleProperty("build.release.destination").orNull
                 ?: return@publishMods println("build.release.destination must be defined (expected: GH+MR+CF, GH+MR, GH)")
         val publishModrinth = releaseDestination.contains("MR")
         val publishCurseforge = releaseDestination.contains("CF")
 
-        val modVersion = BuildConfig.createVersionString(project);
+        val modVersion = BuildConfig.createVersionString(project)
 
         type = when {
             modVersion.contains("alpha") -> ReleaseType.ALPHA
@@ -30,27 +30,28 @@ gradle.projectsEvaluated {
         }
         changelog = BuildConfig.getChangelog(project)
 
+        val mcVersion = BuildConfig.minecraftVersion(project)
+
         val curseforgeShared = curseforgeOptions {
             accessToken = project.providers.environmentVariable("CURSEFORGE_API_KEY")
             projectId = BuildConfig.CURSEFORGE_PROJECT_ID
-            minecraftVersions.add(BuildConfig.MINECRAFT_VERSION)
+            minecraftVersions.add(mcVersion)
         }
 
         val modrinthShared = modrinthOptions {
             accessToken = project.providers.environmentVariable("MODRINTH_API_KEY")
             projectId = BuildConfig.MODRINTH_PROJECT_ID
-            minecraftVersions.add(BuildConfig.MINECRAFT_VERSION)
+            minecraftVersions.add(mcVersion)
         }
 
-        setupFor("Fabric", releasePlatform, publishCurseforge, publishModrinth, curseforgeShared, modrinthShared)
-        setupFor("NeoForge", releasePlatform, publishCurseforge, publishModrinth, curseforgeShared, modrinthShared)
+        setupFor("LegacyFabric", releasePlatform, publishCurseforge, publishModrinth, curseforgeShared, modrinthShared)
 
         github {
             accessToken = project.providers.environmentVariable("GITHUB_TOKEN")
-            repository = "CaffeineMC/sodium"
+            repository = "MaxJubayerYT/Legacy-Sodium"
             commitish = BuildConfig.calculateGitHash(project)
             version = BuildConfig.RELEASE_TAG
-            displayName = "Sodium ${BuildConfig.MOD_VERSION} for Minecraft ${BuildConfig.MINECRAFT_VERSION}"
+            displayName = "Legacy Sodium ${BuildConfig.MOD_VERSION} for Minecraft $mcVersion"
             file.unset()
             file.unsetConvention()
 
@@ -61,12 +62,14 @@ gradle.projectsEvaluated {
 
 fun me.modmuss50.mpp.ModPublishExtension.setupFor(loaderName: String, releasePlatform: String, publishCurseforge: Boolean, publishModrinth: Boolean, curseforgeOptions: Provider<CurseforgeOptions>, modrinthOptions: Provider<ModrinthOptions>) {
     val loaderLowercase = loaderName.lowercase(Locale.ROOT)
+    val projectName = if (loaderLowercase == "legacyfabric") "legacy-fabric" else loaderLowercase
 
-    if (releasePlatform == "both" || releasePlatform == loaderLowercase) {
-        val jar = project(":$loaderLowercase").tasks.named<Jar>("jar").get().archiveFile
+    if (releasePlatform == "both" || releasePlatform == loaderLowercase || releasePlatform == projectName) {
+        val jar = project(":$projectName").tasks.named<Jar>("jar").get().archiveFile
 
-        val releaseTitle = "Sodium ${BuildConfig.MOD_VERSION} for $loaderName ${BuildConfig.MINECRAFT_VERSION}"
-        val releaseVersion = "${BuildConfig.RELEASE_TAG}-$loaderLowercase"
+        val mcVersion = BuildConfig.minecraftVersion(project)
+        val releaseTitle = "Legacy Sodium ${BuildConfig.MOD_VERSION} for $loaderName $mcVersion"
+        val releaseVersion = "${BuildConfig.RELEASE_TAG}-$projectName"
 
         if (publishCurseforge) {
             curseforge("curseforge$loaderName") {
@@ -75,7 +78,7 @@ fun me.modmuss50.mpp.ModPublishExtension.setupFor(loaderName: String, releasePla
                 file.set(jar)
                 displayName = releaseTitle
                 version = releaseVersion
-                modLoaders.add(loaderLowercase)
+                modLoaders.add("fabric")
 
                 clientRequired = true
                 serverRequired = false
@@ -89,7 +92,7 @@ fun me.modmuss50.mpp.ModPublishExtension.setupFor(loaderName: String, releasePla
                 file.set(jar)
                 displayName = releaseTitle
                 version = releaseVersion
-                modLoaders.add(loaderLowercase)
+                modLoaders.add("fabric")
             }
         }
     }
