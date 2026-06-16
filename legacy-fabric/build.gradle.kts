@@ -1,8 +1,7 @@
 plugins {
     id("multiloader-legacy-platform")
-
-    id("net.fabricmc.fabric-loom-remap") version ("1.15-SNAPSHOT")
-    id("legacy-looming") version ("1.15-SNAPSHOT")
+    id("net.fabricmc.fabric-loom-remap") version(extra["loom_version"] as String)
+    id("legacy-looming") version(extra["loom_version"] as String)
 }
 
 base {
@@ -16,7 +15,6 @@ dependencies {
     minecraft("com.mojang:minecraft:$mcVersion")
     mappings("net.legacyfabric:yarn:$mcVersion+build.$yarnBuild:v2")
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.loaderVersion(project)}")
-
     modImplementation("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:${BuildConfig.legacyFabricApiVersion(project)}")
 
     compileOnly("net.fabricmc:sponge-mixin:0.13.2+mixin.0.8.5")
@@ -28,10 +26,15 @@ loom {
         useLegacyMixinAp = false
     }
 
+    // Required for 1.7.x — the vanilla launcher manifest doesn't include these versions
+    if (mcVersion.startsWith("1.7.")) {
+        customMinecraftManifest.set("https://meta.legacyfabric.net/v2/manifest/$mcVersion")
+    }
+
     runs {
         named("client") {
             client()
-            configName = "Legacy Fabric/Client ($mcVersion)"
+            configName = "Legacy Sodium/Client ($mcVersion)"
             appendProjectPathToConfigName = false
             ideConfigGenerated(true)
             runDir("run")

@@ -10,7 +10,8 @@ val javaVersion = BuildConfig.javaVersion(project)
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(maxOf(javaVersion, 8)))
+        // Use Java 21 as the toolchain (available in CI), but compile targeting javaVersion (8)
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -26,6 +27,10 @@ tasks.withType<GenerateModuleMetadata>().configureEach {
 repositories {
     maven {
         name = "LegacyFabric"
-        url = uri("https://maven.legacyfabric.net/repository/legacyfabric/")
+        url = uri("https://maven.legacyfabric.net/")
+    }
+    maven {
+        name = "FabricMC"
+        url = uri("https://maven.fabricmc.net/")
     }
 }
