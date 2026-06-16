@@ -1,7 +1,7 @@
 plugins {
     id("multiloader-legacy-platform")
-    id("net.fabricmc.fabric-loom-remap") version("1.15-SNAPSHOT")
-    id("legacy-looming") version("1.15-SNAPSHOT")
+    id("net.fabricmc.fabric-loom-remap")
+    id("legacy-looming")
 }
 
 base {
