@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
  * Shared client bootstrap for Legacy Sodium. Rendering logic will be backported here from upstream Sodium.
  */
 public class LegacySodiumClientMod {
-    private static final Logger LOGGER = LogManager.getLogger("Legacy Sodium");
+    public static final Logger LOGGER = LogManager.getLogger("Legacy Sodium");
 
     private static String version;
 
